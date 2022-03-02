@@ -15,6 +15,7 @@ use Notify\LaravelCustomLog\Mail\ExceptionEmail;
 use Notify\LaravelCustomLog\Jobs\SendReportEmailJob;
 use Notify\LaravelCustomLog\Jobs\SendExceptionEmailJob;
 use Notify\LaravelCustomLog\Mail\ReportEmail;
+use Notify\LaravelCustomLog\Models\Log;
 
 class LaravelCustomLogServiceProvider extends ServiceProvider
 {
@@ -44,7 +45,7 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
         }
         if ($this->app->runningInConsole()) {
             $this->publishRequiredFiles();
-           /* commands section */
+            /* commands section */
             $this->app->booted(function () {
                 $this->sendEmailReport();
                 $this->sendEmailsToDeveloper();
@@ -56,39 +57,33 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
 
     protected function sendEmailsToDeveloper()
     {
-        if (config('custom-log.dev-mode')) {
-            if (Notifications::getDailyCount() > 0) {
+        if (config('custom-log.mysql.enable') && config('custom-log.dev-mode')) {
+            if (Log::level('error')->dayWise()->count() > 0) {
                 $schedule = $this->app->make(Schedule::class);
                 $schedule->call(function () {
-                    $errors = DB::table(config('custom-log.mysql.table'))->where('is_email_sent', 0)->get();
-                    if (!empty($errors)) {
+                    $errors = Log::level('error')->sendable()->get();
+                    if ($errors->count() > 0) {
                         foreach ($errors as $error) {
                             Mail::to(config('custom-log.dev-emails'))->send(new ExceptionEmail($error));
-                            $record = DB::table(config('custom-log.mysql.table'))->find($error->id);
-                            if (!is_null($record)) {
-                                DB::table(config('custom-log.mysql.table'))->where('id', $error->id)->update([
-                                    'is_email_sent' => 1
-                                ]);
-                            }
+                            $error->is_email_sent = 1;
+                            $error->save();
                         }
                     }
                 })->everyMinute();
-                // $schedule->job(new SendExceptionEmailJob())->everyMinute();
             }
         }
     }
     protected function sendEmailReport()
     {
-        if (Notifications::getDailyCount() > 0) {
+        if (config('custom-log.mysql.enable') && Log::level('error')->dayWise()->count()) {
             $schedule = $this->app->make(Schedule::class);
+            $scheduledCall = $schedule->call(function () {
+                Mail::to(config('custom-log.pm-emails'))->send(new ReportEmail());
+            });
             if (!empty(config('custom-log.command'))) {
-                $schedule->call(function () {
-                    Mail::to(config('custom-log.pm-emails'))->send(new ReportEmail());
-                })->cron(config('custom-log.command'));
+                $scheduledCall->cron(config('custom-log.command'));
             } else {
-                $schedule->call(function () {
-                    Mail::to(config('custom-log.pm-emails'))->send(new ReportEmail());
-                })->dailyAt('10:00');
+                $scheduledCall->dailyAt('10:00');
             }
         }
     }

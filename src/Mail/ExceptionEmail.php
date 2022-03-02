@@ -12,24 +12,21 @@ class ExceptionEmail extends Mailable
     use Queueable, SerializesModels;
 
     protected $exception;
-   
+
 
     public function __construct($exception)
     {
-       $this->exception=$exception;
-      
+        $this->exception = $exception;
     }
 
     public function build()
     {
+        $that = $this->view('CustomLog::emails.exception')->subject(config('custom-log.emails.subject'))
+            ->from(config('mail.from.address'))->with(['exception' => $this->exception]);
         if (!empty(config('custom-log.emails.cc'))) {
-            return $this->view('CustomLog::emails.exception')->subject(config('custom-log.emails.subject'))
-            ->from(config('mail.from.address'))->with(['exception'=>$this->exception])->cc(config('custom-log.emails.cc'));
-        }else{
-            return $this->view('CustomLog::emails.exception')->subject(config('custom-log.emails.subject'))
-            ->from(config('mail.from.address'))->with(['exception'=>$this->exception]);
+            $that->cc(config('custom-log.emails.cc'));
         }
-        
 
+        return $that;
     }
 }

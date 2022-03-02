@@ -28,7 +28,7 @@ class CreateLogsTable extends Migration
                 $table->string('user_agent')->nullable();
                 $table->boolean('is_email_sent')->default(0);
                 $table->integer('created_by')->nullable()->index();
-                $table->dateTime('created_at');
+                $table->timestamps();
             }
         );
     }

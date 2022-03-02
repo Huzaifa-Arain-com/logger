@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'dev-mode' => true,
+    'dev-mode' => env('NOTIFY_DEV_MODE', false),
     'failsafe' => env('CUSTOM_LOG_FAILSAFE', true),
     'custom_log_mysql_enable' => env('CUSTOM_LOG_MYSQL_ENABLE', true),
     'stacktrace' => env('CUSTOM_LOG_STACKTRACE', false),
@@ -18,16 +18,16 @@ return [
         └───────────────────────── min (0 - 59)
      */
     'command' => '',
-    /* email related seeting */
+    /* email related settings */
     'emails' => [
-        'subject' => ' MSWA gestalt Integration: Error Report',
-        'message' => 'Hi,I trust you are well.  Here is the report of exceptions for '.date("Y-m-d").'.',
-        'cc'=>['tshahzad@computan.net']
+        'subject' => config('app.name') . ': Error Report',
+        'message' => 'Hi,I trust you are well.  Here is the report of exceptions for ' . date("Y-m-d") . '.',
+        'cc' => explode(",", env('NOTIFY_CC_EMAILS', ""))
     ],
     /* enlist all comma seprated email for PM and other to send daily report */
-    'pm-emails' => ['tshahzad@computan.net'],
+    'pm-emails' => explode(",", env('NOTIFY_PM_EMAILS', "")),
     /* enlist all developers where and they get notification on each exception */
-    'dev-emails' => ['tshahzad@computan.net'],
+    'dev-emails' => explode(",", env('NOTIFY_DEV_EMAILS', "")),
 
     'console' => [
         'enable' => env('CUSTOM_LOG_CONSOLE_ENABLE', false),

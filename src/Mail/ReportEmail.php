@@ -5,6 +5,7 @@ namespace Notify\LaravelCustomLog\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Notify\LaravelCustomLog\Models\Log;
 use Notify\LaravelCustomLog\Notifications;
 
 class ReportEmail extends Mailable
@@ -18,29 +19,23 @@ class ReportEmail extends Mailable
 
     public function __construct()
     {
-        $this->totalErrors = Notifications::getDailyCount();
-        $this->jobsFailed = Notifications::getJobDailyCount();
+        $this->totalErrors = Log::level('error')->dayWise()->count();
+        $this->jobsFailed = Log::level('error')->dayWise()->job()->count();
         $this->exceptions = Notifications::getEmailLogs();
     }
 
     public function build()
     {
+        $that = $this->view('CustomLog::emails.report')->subject(config('custom-log.emails.subject'))
+            ->from(config('mail.from.address'))->with([
+                'exceptions' => $this->exceptions,
+                'totalErrors' => $this->totalErrors,
+                'jobsFailed' => $this->jobsFailed,
+
+            ]);
         if (!empty(config('custom-log.emails.cc'))) {
-            return $this->view('CustomLog::emails.report')->subject(config('custom-log.emails.subject'))
-                ->from(config('mail.from.address'))->with([
-                    'exceptions' => $this->exceptions,
-                    'totalErrors' => $this->totalErrors,
-                    'jobsFailed' => $this->jobsFailed,
-
-                ])->cc(config('custom-log.emails.cc'));
-        } else {
-            return $this->view('CustomLog::emails.report')->subject(config('custom-log.emails.subject'))
-                ->from(config('mail.from.address'))->with([
-                    'exceptions' => $this->exceptions,
-                    'totalErrors' => $this->totalErrors,
-                    'jobsFailed' => $this->jobsFailed,
-
-                ]);
+            $that->cc(config('custom-log.emails.cc'));
         }
+        return $that;
     }
 }
