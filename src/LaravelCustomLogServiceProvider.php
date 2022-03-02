@@ -2,18 +2,13 @@
 
 namespace Notify\LaravelCustomLog;
 
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Queue\Events\JobFailed;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\ServiceProvider;
 use Notify\LaravelCustomLog\Mail\ExceptionEmail;
-use Notify\LaravelCustomLog\Jobs\SendReportEmailJob;
-use Notify\LaravelCustomLog\Jobs\SendExceptionEmailJob;
 use Notify\LaravelCustomLog\Mail\ReportEmail;
 use Notify\LaravelCustomLog\Models\Log;
 
@@ -30,7 +25,6 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
 
     public function boot()
     {
-
         if (config('custom-log.custom_log_mysql_enable')) {
 
             /* Binding package exception into laravel ExceptionHandler interface*/
@@ -73,6 +67,7 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
             }
         }
     }
+
     protected function sendEmailReport()
     {
         if (config('custom-log.mysql.enable') && Log::level('error')->dayWise()->count()) {
@@ -91,12 +86,11 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
     protected function publishRequiredFiles()
     {
         $this->publishes([
-            __DIR__ . '/config/custom-log.php' => config_path('custom-log.php')
+            __DIR__ . '/config/custom-log.php' => config_path('custom-log.php'),
         ], 'config');
 
         $this->publishes([
-
-            __DIR__ . '/migrations/2021_12_13_000000_create_logs_table.php' => base_path('database/migrations/2021_12_13_000000_create_logs_table.php')
+            __DIR__ . '/migrations/2021_12_13_000000_create_logs_table.php' => base_path('database/migrations/2021_12_13_000000_create_logs_table.php'),
         ], 'migration');
     }
 }
