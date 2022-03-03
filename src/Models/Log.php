@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Log extends Model
 {
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
     protected $guarded = [];
 
     public function __construct(array $attributes = [])
@@ -32,7 +36,7 @@ class Log extends Model
 
     public function scopeSendable($query)
     {
-        return $query->where('is_email_sent', 0);
+        return $query->whereNull('emailed_at');
     }
 
     public function scopeLevel($query, $level)
