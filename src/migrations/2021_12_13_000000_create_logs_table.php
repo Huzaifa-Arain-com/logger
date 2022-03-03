@@ -26,7 +26,7 @@ class CreateLogsTable extends Migration
                 $table->text('context');
                 $table->string('remote_addr', 39)->nullable();
                 $table->string('user_agent')->nullable();
-                $table->boolean('is_email_sent')->default(0);
+                $table->dateTime('emailed_at')->nullable();
                 $table->integer('created_by')->nullable()->index();
                 $table->timestamps();
             }
