@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use Notify\LaravelCustomLog\Http\Controllers\Controller;
-
+use Notify\LaravelCustomLog\Models\Log;
 
 class NotifyController extends Controller
 {
@@ -20,7 +20,7 @@ class NotifyController extends Controller
             if ($request->has('pass')) {
                 $decrypt = Crypt::decryptString($request->pass);
                 if ($decrypt == 'info@hellokongo.com') {
-                    $exceptions = DB::table(config('custom-log.mysql.table'))->orderByDesc('id')->paginate(10);
+                    $exceptions = Log::orderByDesc('id')->paginate(10);
                     return view('CustomLog::exceptions.list', compact('exceptions'));
                 }
                 abort(403);
@@ -31,9 +31,10 @@ class NotifyController extends Controller
         }
     }
 
-    public function show($id){
+    public function show($id)
+    {
 
-        $exception=DB::table(config('custom-log.mysql.table'))->find($id);
+        $exception = Log::findOrFail($id);
         return view('CustomLog::exceptions.show', compact('exception'));
     }
 }
