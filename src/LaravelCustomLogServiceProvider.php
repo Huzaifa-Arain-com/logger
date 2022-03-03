@@ -2,6 +2,7 @@
 
 namespace Notify\LaravelCustomLog;
 
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Queue\Events\JobFailed;
@@ -51,21 +52,21 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
 
     protected function sendEmailsToDeveloper()
     {
-        if (config('custom-log.mysql.enable') && config('custom-log.dev-mode')) {
-            if (Log::level('error')->dayWise()->count() > 0) {
-                $schedule = $this->app->make(Schedule::class);
-                $schedule->call(function () {
-                    $errors = Log::level('error')->sendable()->get();
-                    if ($errors->count() > 0) {
-                        foreach ($errors as $error) {
-                            Mail::to(config('custom-log.dev-emails'))->send(new ExceptionEmail($error));
-                            $error->is_email_sent = 1;
-                            $error->save();
-                        }
-                    }
-                })->everyMinute();
-            }
-        }
+        // if (config('custom-log.mysql.enable') && config('custom-log.dev-mode')) {
+        //     if (Log::level('error')->dayWise()->count() > 0) {
+        //         $schedule = $this->app->make(Schedule::class);
+        //         $schedule->call(function () {
+        //             $errors = Log::level('error')->sendable()->get();
+        //             if ($errors->count() > 0) {
+        //                 foreach ($errors as $error) {
+        //                     Mail::to(config('custom-log.dev-emails'))->send(new ExceptionEmail($error));
+        //                     $error->emailed_at = Carbon::now();
+        //                     $error->save();
+        //                 }
+        //             }
+        //         })->everyMinute();
+        //     }
+        // }
     }
 
     protected function sendEmailReport()
