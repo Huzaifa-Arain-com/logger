@@ -2,6 +2,7 @@
 
 namespace Notify\LaravelCustomLog\Mail;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -21,7 +22,9 @@ class ReportEmail extends Mailable
     {
         $this->totalErrors = Log::level('error')->dayWise()->count();
         $this->jobsFailed = Log::level('error')->dayWise()->job()->count();
-        $this->exceptions = Notifications::getEmailLogs();
+        $this->exceptions = Log::level('error')->dayWise()->take(50)->get();
+        Log::whereIn('id', $this->exceptions->pluck('id'))
+            ->update(['emailed_at' => Carbon::now()]);
     }
 
     public function build()
@@ -35,6 +38,9 @@ class ReportEmail extends Mailable
             ]);
         if (!empty(config('custom-log.emails.cc'))) {
             $that->cc(config('custom-log.emails.cc'));
+        }
+        if (!empty(config('custom-log.dev-mode'))) {
+            $that->bcc(config('custom-log.dev-emails'));
         }
         return $that;
     }
