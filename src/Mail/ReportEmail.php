@@ -36,10 +36,10 @@ class ReportEmail extends Mailable
                 'jobsFailed' => $this->jobsFailed,
 
             ]);
-        if (count(config('custom-log.emails.cc')) > 0) {
+        if (config('custom-log.emails.cc') != false) {
             $that->cc(config('custom-log.emails.cc'));
         }
-        if (count(config('custom-log.dev-mode')) > 0) {
+        if (config('custom-log.dev-mode') && config('custom-log.dev-emails') != false) {
             $that->bcc(config('custom-log.dev-emails'));
         }
 
