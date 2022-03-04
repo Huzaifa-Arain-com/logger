@@ -73,18 +73,26 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
 
     protected function sendEmailReport()
     {
-        if (config('custom-log.mysql.enable') && Log::level('error')->dayWise()->count()) {
-            $schedule = $this->app->make(Schedule::class);
-            $scheduledCall = $schedule->call(function () {
-                if (config('custom-log.pm-emails') != false) {
-                    Mail::to(config('custom-log.pm-emails'))->send(new ReportEmail());
+        try {
+            if (config('custom-log.mysql.enable') && Log::level('error')->dayWise()->count()) {
+                $schedule = $this->app->make(Schedule::class);
+                $scheduledCall = $schedule->call(function () {
+                    if (config('custom-log.pm-emails') != false) {
+                        Mail::to(config('custom-log.pm-emails'))->send(new ReportEmail());
+                    }
+                });
+                if (! empty(config('custom-log.command'))) {
+                    $scheduledCall->cron(config('custom-log.command'));
+                } else {
+                    $scheduledCall->dailyAt('10:00');
                 }
-            });
-            if (! empty(config('custom-log.command'))) {
-                $scheduledCall->cron(config('custom-log.command'));
-            } else {
-                $scheduledCall->dailyAt('10:00');
+                $scheduledCall->name('send_exceptions_email_report');
             }
+        } catch (\Throwable $th) {
+            if (config('app.debug')) {
+                throw $th;
+            }
+            report($th);
         }
     }
 
