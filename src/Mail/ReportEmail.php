@@ -7,15 +7,15 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Notify\LaravelCustomLog\Models\Log;
-use Notify\LaravelCustomLog\Notifications;
 
 class ReportEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-
     protected $totalErrors;
+
     protected $jobsFailed;
+
     protected $exceptions;
 
     public function __construct()
@@ -36,12 +36,13 @@ class ReportEmail extends Mailable
                 'jobsFailed' => $this->jobsFailed,
 
             ]);
-        if (!empty(config('custom-log.emails.cc'))) {
+        if (count(config('custom-log.emails.cc')) > 0) {
             $that->cc(config('custom-log.emails.cc'));
         }
-        if (!empty(config('custom-log.dev-mode'))) {
+        if (count(config('custom-log.dev-mode')) > 0) {
             $that->bcc(config('custom-log.dev-emails'));
         }
+
         return $that;
     }
 }
