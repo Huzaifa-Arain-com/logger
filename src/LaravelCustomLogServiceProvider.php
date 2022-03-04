@@ -3,9 +3,11 @@
 namespace Notify\LaravelCustomLog;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
@@ -27,7 +29,7 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
     public function boot()
     {
         if (config('custom-log.custom_log_mysql_enable')) {
-
+            $this->parseConfigurations();
             /* Binding package exception into laravel ExceptionHandler interface*/
             $this->app->bind(
                 ExceptionHandler::class,
@@ -74,7 +76,7 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
         if (config('custom-log.mysql.enable') && Log::level('error')->dayWise()->count()) {
             $schedule = $this->app->make(Schedule::class);
             $scheduledCall = $schedule->call(function () {
-                if (count(config('custom-log.pm-emails')) > 0) {
+                if (config('custom-log.pm-emails') != false) {
                     Mail::to(config('custom-log.pm-emails'))->send(new ReportEmail());
                 }
             });
@@ -95,5 +97,59 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/migrations/2021_12_13_000000_create_logs_table.php' => base_path('database/migrations/2021_12_13_000000_create_logs_table.php'),
         ], 'migration');
+    }
+
+    protected function parseConfigurations()
+    {
+        $emails = config('custom-log.pm-emails');
+        if (! is_array($emails) || $emails == false || $emails == null) {
+            $emails = false;
+        } else {
+            $emails = array_filter($emails);
+            if (count($emails) == 0) {
+                $emails = false;
+            } else {
+                foreach ($emails as $email) {
+                    if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        throw new Exception("Incorrect email: $email");
+                    }
+                }
+            }
+        }
+        Config::set('custom-log.pm-emails', $emails);
+
+        $emails = config('custom-log.dev-emails');
+        if (! is_array($emails) || $emails == false || $emails == null) {
+            $emails = false;
+        } else {
+            $emails = array_filter($emails);
+            if (count($emails) == 0) {
+                $emails = false;
+            } else {
+                foreach ($emails as $email) {
+                    if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        throw new Exception("Incorrect email: $email");
+                    }
+                }
+            }
+        }
+        Config::set('custom-log.dev-emails', $emails);
+
+        $emails = config('custom-log.emails.cc');
+        if (! is_array($emails) || $emails == false || $emails == null) {
+            $emails = false;
+        } else {
+            $emails = array_filter($emails);
+            if (count($emails) == 0) {
+                $emails = false;
+            } else {
+                foreach ($emails as $email) {
+                    if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        throw new Exception("Incorrect email: $email");
+                    }
+                }
+            }
+        }
+        Config::set('custom-log.emails.cc', $emails);
     }
 }
