@@ -20,14 +20,14 @@ return [
     'command' => '',
     /* email related settings */
     'emails' => [
-        'subject' => config('app.name') . ': Error Report',
-        'message' => 'Hi,I trust you are well.  Here is the report of exceptions for ' . date("Y-m-d") . '.',
-        'cc' => explode(",", env('NOTIFY_CC_EMAILS', ""))
+        'subject' => config('app.name').': Error Report',
+        'message' => 'Hi,I trust you are well.  Here is the report of exceptions for '.date('Y-m-d').'.',
+        'cc' => explode(',', env('NOTIFY_CC_EMAILS')),
     ],
     /* enlist all comma seprated email for PM and other to send daily report */
-    'pm-emails' => explode(",", env('NOTIFY_PM_EMAILS', "")),
+    'pm-emails' => explode(',', env('NOTIFY_PM_EMAILS')),
     /* enlist all developers where and they get notification on each exception */
-    'dev-emails' => explode(",", env('NOTIFY_DEV_EMAILS', "")),
+    'dev-emails' => explode(',', env('NOTIFY_DEV_EMAILS')),
 
     'console' => [
         'enable' => env('CUSTOM_LOG_CONSOLE_ENABLE', false),
