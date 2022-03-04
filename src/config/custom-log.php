@@ -17,7 +17,7 @@ return [
         │ └──────────────────── hour (0 - 23)
         └───────────────────────── min (0 - 59)
      */
-    'command' => '',
+    'command' => env('NOTIFY_CRON_COMMAND', ''),
     /* email related settings */
     'emails' => [
         'subject' => config('app.name').': Error Report',
