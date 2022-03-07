@@ -10,7 +10,8 @@
     "homepage": "https://github.com/computan/notification",
     "keywords": ["Laravel", "Notification"],
     "require": {
-        "php": ">=7.0.0"
+        "php": ">=7.0.0",
+        "danielme85/laravel-log-to-db" : "3.*"
     },
 
     "autoload": {
