@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateLogsTable extends Migration
 {
@@ -18,16 +18,15 @@ class CreateLogsTable extends Migration
                 $table->engine = 'InnoDB';
 
                 $table->bigIncrements('id');
-                $table->string('instance')->index();
-                $table->string('channel')->index();
-                $table->string('level')->index();
-                $table->string('level_name');
-                $table->text('message');
-                $table->text('context');
-                $table->string('remote_addr', 39)->nullable();
-                $table->string('user_agent')->nullable();
+                $table->text('message')->nullable();
+                $table->string('channel')->nullable();
+                $table->integer('level')->default(0);
+                $table->string('level_name', 20)->index();
+                $table->integer('unix_time');
+                $table->text('datetime')->nullable();
+                $table->longText('context')->nullable();
                 $table->dateTime('emailed_at')->nullable();
-                $table->integer('created_by')->nullable()->index();
+                $table->text('extra')->nullable();
                 $table->timestamps();
             }
         );

@@ -27,7 +27,7 @@
         <div class="col-md-12">
           <div class="my-5 p-5 card">
             <h3>Where to look?</h3>
-            <p class="fs-5"><?php dump(json_decode($exception->context)); ?></p>
+            <p class="fs-5"><?php dump($exception->context); ?></p>
           </div>
           <div class="my-5 p-5 card">
             <h3>Complete information</h3>
@@ -35,7 +35,13 @@
               @if (in_array($key, ['message', 'context', 'emailed_at', 'created_by']))
                 @continue
               @endif
-              <p><strong>{{ ucwords(str_replace('_', ' ', $key)) }}:</strong> {{ $value }}</p>
+              @if ($key == 'extra')
+                @foreach ($value as $extraKey => $extraValue)
+                  <p><strong>{{ ucwords(str_replace('_', ' ', $extraKey)) }}:</strong> {{ $extraValue }}</p>
+                @endforeach
+              @else
+                <p><strong>{{ ucwords(str_replace('_', ' ', $key)) }}:</strong> {{ $value }}</p>
+              @endif
             @endforeach
           </div>
         </div>

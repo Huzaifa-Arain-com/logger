@@ -3,11 +3,12 @@
 namespace Notify\LaravelCustomLog;
 
 use Carbon\Carbon;
+use danielme85\LaravelLogToDB\LogToDbHandler;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
@@ -24,20 +25,27 @@ class LaravelCustomLogServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $loggingConfig = Config::get('logging');
+        $loggingConfig['channels']['notify_notification'] = [
+            'driver' => 'custom',
+            'via' => LogToDbHandler::class,
+            'level' => env('LOG_LEVEL', 'debug'),
+            'collection' => config('custom-log.mysql.table'),
+            'processors' => [
+                \Notify\LaravelCustomLog\Processors\CustomProcessor::class,
+            ],
+        ];
+        $loggingConfig['default'] = 'notify_notification';
+        Config::set('logging', $loggingConfig);
     }
 
     public function boot()
     {
         if (config('custom-log.custom_log_mysql_enable')) {
             $this->parseConfigurations();
-            /* Binding package exception into laravel ExceptionHandler interface*/
-            $this->app->bind(
-                ExceptionHandler::class,
-                Handler::class
-            );
-            /* getting fialed job exception */
+
             Queue::failing(function (JobFailed $event) {
-                Notifications::error('job', $event->exception->getMessage(), $event->exception->getTrace());
+                FacadesLog::channel('notify_notification')->error($event->exception->getMessage(), $event->exception->getTrace());
             });
         }
         if ($this->app->runningInConsole()) {

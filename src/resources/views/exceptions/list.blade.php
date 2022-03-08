@@ -33,7 +33,7 @@ $code = app()->isDownForMaintenance() ? 'maintenance' : 'error logs';
 
           <div id="collapse-{{ $exception->id }}" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion-{{ $exception->id }}">
             <div class="card-body">
-              <?php dump(json_decode($exception->context, true)); ?>
+              <?php dump($exception->context); ?>
             </div>
           </div>
         </div>

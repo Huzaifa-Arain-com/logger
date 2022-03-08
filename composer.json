@@ -6,6 +6,10 @@
         "name": "Tameem Ahmad Shahzad",
         "email": "tshahzad@computan.net"
 
+    },{
+        "name": "Huzaifa Arain",
+        "email": "harain@computan.net"
+
     }],
     "homepage": "https://github.com/computan/notification",
     "keywords": ["Laravel", "Notification"],

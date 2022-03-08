@@ -3,20 +3,34 @@
 namespace Notify\LaravelCustomLog\Models;
 
 use Carbon\Carbon;
+use danielme85\LaravelLogToDB\Models\LogToDbCreateObject;
 use Illuminate\Database\Eloquent\Model;
 
 class Log extends Model
 {
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    use LogToDbCreateObject;
+
     protected $guarded = [];
 
     public function __construct(array $attributes = [])
     {
         parent::__construct();
         $this->table = config('custom-log.mysql.table');
+    }
+
+    public function getEmailedAtAttribute($value)
+    {
+        return $value != null ? Carbon::parse($value)->toDayDateTimeString() : null;
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return $value != null ? Carbon::parse($value)->toDayDateTimeString() : null;
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return $value != null ? Carbon::parse($value)->toDayDateTimeString() : null;
     }
 
     public function scopeDayWise($query, $created_at = null)
