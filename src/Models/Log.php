@@ -4,6 +4,7 @@ namespace Notify\LaravelCustomLog\Models;
 
 use Carbon\Carbon;
 use danielme85\LaravelLogToDB\Models\LogToDbCreateObject;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 
 class Log extends Model
@@ -14,8 +15,13 @@ class Log extends Model
 
     public function __construct(array $attributes = [])
     {
-        parent::__construct();
+        parent::__construct($attributes);
         $this->table = config('custom-log.mysql.table');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 
     public function getEmailedAtAttribute($value)
